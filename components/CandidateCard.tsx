@@ -10,7 +10,7 @@ interface CandidateCardProps {
 
 const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, onAddToPipeline }) => {
   return (
-    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex items-start gap-4">
+    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex items-start gap-4 w-full overflow-hidden">
       <div className="flex-shrink-0">
         <MatchDonutChart percentage={candidate.match} size={64} strokeWidth={6} />
       </div>
@@ -35,7 +35,9 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, onAddToPipelin
             )}
         </div>
         
-        <p className="text-sm text-gray-300 leading-snug">{candidate.summary}</p>
+        <p className="text-sm text-gray-300 leading-snug break-words whitespace-pre-wrap">
+          {candidate.summary}
+        </p>
         
         {candidate.yearsOfExperience !== undefined && (
           <div className="mt-3">

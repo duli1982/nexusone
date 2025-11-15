@@ -29,6 +29,7 @@ interface ChatPanelProps {
   reminders: import('../types').Reminder[];
   onAddReminder: (text: string, phaseId?: string, dueDate?: string) => void;
   onToggleReminderDone: (id: string) => void;
+  onStopStreaming: () => void;
 }
 
 const ChatPanel: React.FC<ChatPanelProps> = ({
@@ -48,6 +49,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   reminders,
   onAddReminder,
   onToggleReminderDone,
+  onStopStreaming,
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -135,6 +137,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
           onSendMessage={onSendMessage}
           isLoading={isLoading}
           onSavePlaybook={onSavePlaybook}
+          onStop={onStopStreaming}
         />
       </div>
     </div>

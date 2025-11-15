@@ -5,9 +5,10 @@ interface InputBarProps {
   onSendMessage: (message: string) => void;
   isLoading: boolean;
   onSavePlaybook?: (prompt: string) => void;
+  onStop?: () => void;
 }
 
-const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading, onSavePlaybook }) => {
+const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading, onSavePlaybook, onStop }) => {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -60,13 +61,23 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading, onSavePla
               Save
             </button>
           )}
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="ml-2 p-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors duration-200 flex-shrink-0"
-          >
-            <SendIcon className="w-5 h-5" />
-          </button>
+          {isLoading && onStop ? (
+            <button
+              type="button"
+              onClick={onStop}
+              className="ml-2 px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-500 transition-colors duration-200 flex-shrink-0 text-sm font-semibold"
+            >
+              Stop
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              className="ml-2 p-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors duration-200 flex-shrink-0"
+            >
+              <SendIcon className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </form>
     </div>

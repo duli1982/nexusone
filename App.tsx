@@ -28,6 +28,7 @@ const App: React.FC = () => {
   const [showRolesOverview, setShowRolesOverview] = useState<boolean>(false);
   
   const chatInstances = useRef(new Map<string, Chat>());
+  const activeStreamRef = useRef<{ cancelled: boolean } | null>(null);
 
   // --- Persistence helpers ---
   useEffect(() => {
@@ -183,6 +184,13 @@ const App: React.FC = () => {
     }
   };
 
+  const handleStopStreaming = () => {
+    if (activeStreamRef.current) {
+      activeStreamRef.current.cancelled = true;
+    }
+    setIsLoading(false);
+  };
+
   const handleSendMessage = async (userInput: string) => {
     if (!activeChatId || !chatInstances.current.has(activeChatId)) {
       setError("No active chat session. Please start a new chat.");
@@ -193,6 +201,9 @@ const App: React.FC = () => {
 
     setIsLoading(true);
     setError(null);
+
+    const streamState = { cancelled: false };
+    activeStreamRef.current = streamState;
 
     setChats(prevChats => prevChats.map(chat => {
         if (chat.id === activeChatId) {
@@ -214,6 +225,10 @@ const App: React.FC = () => {
       const nexusMessageId = `nexus_${Date.now()}`;
 
       for await (const chunk of stream) {
+        if (activeStreamRef.current !== streamState || streamState.cancelled) {
+          break;
+        }
+
         const chunkText = chunk.text;
         fullResponseText += chunkText;
 
@@ -240,9 +255,14 @@ const App: React.FC = () => {
         }
       }
 
-      handlePhaseTransition(fullResponseText);
+      if (!streamState.cancelled) {
+        handlePhaseTransition(fullResponseText);
+      }
       
     } catch (e) {
+      if (activeStreamRef.current !== streamState || streamState.cancelled) {
+        return;
+      }
       const error = e instanceof Error ? e : new Error('An unknown error occurred.');
       console.error(error);
 
@@ -268,6 +288,9 @@ const App: React.FC = () => {
         return chat;
       }));
     } finally {
+      if (activeStreamRef.current === streamState) {
+        activeStreamRef.current = null;
+      }
       setIsLoading(false);
     }
   };
@@ -277,6 +300,9 @@ const App: React.FC = () => {
 
     setIsLoading(true);
     setError(null);
+
+    const streamState = { cancelled: false };
+    activeStreamRef.current = streamState;
 
     const activeChatIndex = chats.findIndex(c => c.id === activeChatId);
     if (activeChatIndex === -1) {
@@ -319,6 +345,10 @@ const App: React.FC = () => {
       const nexusMessageId = `nexus_${Date.now()}`;
 
       for await (const chunk of stream) {
+        if (activeStreamRef.current !== streamState || streamState.cancelled) {
+          break;
+        }
+
         const chunkText = chunk.text;
         fullResponseText += chunkText;
 
@@ -343,8 +373,13 @@ const App: React.FC = () => {
             }));
         }
       }
-      handlePhaseTransition(fullResponseText);
+      if (!streamState.cancelled) {
+        handlePhaseTransition(fullResponseText);
+      }
     } catch (e) {
+      if (activeStreamRef.current !== streamState || streamState.cancelled) {
+        return;
+      }
       const error = e instanceof Error ? e : new Error('An unknown error occurred.');
       console.error(error);
       let displayError = "An unexpected error occurred while editing. Please try again.";
@@ -357,6 +392,9 @@ const App: React.FC = () => {
         return chat;
       }));
     } finally {
+      if (activeStreamRef.current === streamState) {
+        activeStreamRef.current = null;
+      }
       setIsLoading(false);
     }
 };
@@ -476,6 +514,7 @@ const App: React.FC = () => {
                 reminders={reminders}
                 onAddReminder={handleAddReminder}
                 onToggleReminderDone={handleToggleReminderDone}
+                onStopStreaming={handleStopStreaming}
             />
         ) : (
             <div className="flex-1 flex items-center justify-center text-gray-500">
