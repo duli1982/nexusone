@@ -28,6 +28,7 @@ const PipelinePanel: React.FC<PipelinePanelProps> = ({ role, onUpdateRole, onSen
   const [isCopyingPanel, setIsCopyingPanel] = useState(false);
   const [isCopyingOffer, setIsCopyingOffer] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const handleStatusChange = (candidateId: string | undefined, status: CandidateStatus) => {
     if (!candidateId) return;
@@ -202,122 +203,135 @@ const PipelinePanel: React.FC<PipelinePanelProps> = ({ role, onUpdateRole, onSen
           Pipeline ({candidates.length})
         </h3>
         <div className="flex items-center gap-2">
-          {onSendMessage && (
-            <button
-              type="button"
-              onClick={handleCompareSelected}
-              disabled={selectedIds.length < 2 || selectedIds.length > 3}
-              className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60"
-              title="Select 2–3 candidates below, then compare"
-            >
-              Compare selected ({selectedIds.length || 0})
-            </button>
+          <button
+            type="button"
+            onClick={() => setIsExpanded((v) => !v)}
+            className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800"
+          >
+            {isExpanded ? 'Hide' : 'Show'}
+          </button>
+          {isExpanded && (
+            <>
+              {onSendMessage && (
+                <button
+                  type="button"
+                  onClick={handleCompareSelected}
+                  disabled={selectedIds.length < 2 || selectedIds.length > 3}
+                  className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60"
+                  title="Select 2–3 candidates below, then compare"
+                >
+                  Compare selected ({selectedIds.length || 0})
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleCopyShortlist}
+                disabled={isCopyingShortlist}
+                className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60"
+              >
+                {isCopyingShortlist ? 'Copied' : 'Copy shortlist'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyPanelBrief}
+                disabled={isCopyingPanel}
+                className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60"
+              >
+                {isCopyingPanel ? 'Copied' : 'Copy panel brief'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyOfferSummary}
+                disabled={isCopyingOffer}
+                className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60"
+              >
+                {isCopyingOffer ? 'Copied' : 'Copy offer summary'}
+              </button>
+            </>
           )}
-          <button
-            type="button"
-            onClick={handleCopyShortlist}
-            disabled={isCopyingShortlist}
-            className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60"
-          >
-            {isCopyingShortlist ? 'Copied…' : 'Copy shortlist'}
-          </button>
-          <button
-            type="button"
-            onClick={handleCopyPanelBrief}
-            disabled={isCopyingPanel}
-            className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60"
-          >
-            {isCopyingPanel ? 'Copied…' : 'Copy panel brief'}
-          </button>
-          <button
-            type="button"
-            onClick={handleCopyOfferSummary}
-            disabled={isCopyingOffer}
-            className="text-[11px] px-2 py-1 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60"
-          >
-            {isCopyingOffer ? 'Copied…' : 'Copy offer summary'}
-          </button>
         </div>
       </div>
-      <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-        {candidates.map((c: Candidate) => {
-          const key = c.id || c.name;
-          const isSelected = selectedIds.includes(key);
-          return (
-            <div key={key} className="border border-gray-700/70 rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between bg-gray-900/90 px-3 py-2">
-                <CandidateCard candidate={c} />
-                {onSendMessage && (
-                  <label className="ml-2 flex items-center gap-1 text-[11px] text-gray-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="h-3 w-3"
-                      checked={isSelected}
-                      onChange={() => toggleSelected(key)}
-                    />
-                    <span>Select</span>
-                  </label>
-                )}
-              </div>
-              <div className="bg-gray-900/70 px-3 py-2 space-y-2 text-[11px] text-gray-300">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-gray-400">Status</span>
-                  <select
-                    className="bg-gray-800 border border-gray-700 rounded-md px-2 py-1 text-[11px] text-gray-200"
-                    value={c.status || CandidateStatus.SOURCED}
-                    onChange={(e) => handleStatusChange(c.id, e.target.value as CandidateStatus)}
-                  >
-                    {statusOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+      {isExpanded && (
+        <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+          {candidates.map((c: Candidate) => {
+            const key = c.id || c.name;
+            const isSelected = selectedIds.includes(key);
+            return (
+              <div key={key} className="border border-gray-700/70 rounded-lg overflow-hidden">
+                <div className="flex items-center justify-between bg-gray-900/90 px-3 py-2">
+                  <CandidateCard candidate={c} />
+                  {onSendMessage && (
+                    <label className="ml-2 flex items-center gap-1 text-[11px] text-gray-300 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="h-3 w-3"
+                        checked={isSelected}
+                        onChange={() => toggleSelected(key)}
+                      />
+                      <span>Select</span>
+                    </label>
+                  )}
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-gray-400">LinkedIn URL</label>
-                  <input
-                    className="bg-gray-800 border border-gray-700 rounded-md px-2 py-1 text-[11px] text-gray-200"
-                    value={c.linkedinUrl || ''}
-                    onChange={(e) => handleFieldChange(c.id, 'linkedinUrl', e.target.value)}
-                    placeholder="https://www.linkedin.com/in/..."
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-gray-400">Notes / profile text</label>
-                  <textarea
-                    className="bg-gray-800 border border-gray-700 rounded-md px-2 py-1 text-[11px] text-gray-200"
-                    rows={2}
-                    value={c.notes || ''}
-                    onChange={(e) => handleFieldChange(c.id, 'notes', e.target.value)}
-                    placeholder="Paste CV/profile snippets or internal notes"
-                  />
-                </div>
-                {onSendMessage && (
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      className="px-2 py-1 rounded-md bg-blue-600 text-white text-[11px] hover:bg-blue-500"
-                      onClick={() =>
-                        onSendMessage(
-                          `Please review this candidate for the role "${role.title || 'role'}". ` +
-                            `Candidate: ${c.name}. Current role: ${c.currentRole || 'n/a'}. ` +
-                            `Summary: ${c.summary}. Notes/CV text: ${
-                              c.notes || 'no additional text provided'
-                            }. ` +
-                            `Score their fit, highlight strengths, risks, and recommend next steps.`
-                        )
-                      }
+                <div className="bg-gray-900/70 px-3 py-2 space-y-2 text-[11px] text-gray-300">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-gray-400">Status</span>
+                    <select
+                      className="bg-gray-800 border border-gray-700 rounded-md px-2 py-1 text-[11px] text-gray-200"
+                      value={c.status || CandidateStatus.SOURCED}
+                      onChange={(e) => handleStatusChange(c.id, e.target.value as CandidateStatus)}
                     >
-                      Ask Nexus to review
-                    </button>
+                      {statusOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-gray-400">LinkedIn URL</label>
+                    <input
+                      className="bg-gray-800 border border-gray-700 rounded-md px-2 py-1 text-[11px] text-gray-200"
+                      value={c.linkedinUrl || ''}
+                      onChange={(e) => handleFieldChange(c.id, 'linkedinUrl', e.target.value)}
+                      placeholder="https://www.linkedin.com/in/..."
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-gray-400">Notes / profile text</label>
+                    <textarea
+                      className="bg-gray-800 border border-gray-700 rounded-md px-2 py-1 text-[11px] text-gray-200"
+                      rows={2}
+                      value={c.notes || ''}
+                      onChange={(e) => handleFieldChange(c.id, 'notes', e.target.value)}
+                      placeholder="Paste CV/profile snippets or internal notes"
+                    />
+                  </div>
+                  {onSendMessage && (
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        className="px-2 py-1 rounded-md bg-blue-600 text-white text-[11px] hover:bg-blue-500"
+                        onClick={() =>
+                          onSendMessage(
+                            `Please review this candidate for the role "${role.title || 'role'}". ` +
+                              `Candidate: ${c.name}. Current role: ${c.currentRole || 'n/a'}. ` +
+                              `Summary: ${c.summary}. Notes/CV text: ${
+                                c.notes || 'no additional text provided'
+                              }. ` +
+                              `Score their fit, highlight strengths, risks, and recommend next steps.`
+                          )
+                        }
+                      >
+                        Ask Nexus to review
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
