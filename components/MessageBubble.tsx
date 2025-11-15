@@ -60,7 +60,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onEditMessage, o
         )}
         <div 
             className={`
-                max-w-xl xl:max-w-2xl rounded-xl p-4
+                w-full max-w-2xl xl:max-w-3xl rounded-xl p-4
                 ${isNexus ? 'bg-gray-800 text-gray-200 rounded-tl-none' : 'bg-blue-600 text-white rounded-tr-none'}
             `}
         >

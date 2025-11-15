@@ -165,13 +165,20 @@ const App: React.FC = () => {
   };
 
   const handlePhaseTransition = (responseText: string) => {
-    const phaseTransitionRegex = /belongs to \*\*Phase (\d+):/;
-    const match = responseText.match(phaseTransitionRegex);
-    if (match && match[1]) {
-      const phaseNumber = match[1];
-      const newPhaseId = `phase${phaseNumber}`;
-      if (RECRUITMENT_PHASES.some(p => p.id === newPhaseId)) {
-        setActivePhaseId(newPhaseId);
+    const patterns = [
+      /belongs to \*\*Phase\s+(\d+)\s*:/i,
+      /Phase\s+(\d+)\s*:/i,
+    ];
+
+    for (const pattern of patterns) {
+      const match = responseText.match(pattern);
+      if (match && match[1]) {
+        const phaseNumber = match[1];
+        const newPhaseId = `phase${phaseNumber}`;
+        if (RECRUITMENT_PHASES.some(p => p.id === newPhaseId)) {
+          setActivePhaseId(newPhaseId);
+        }
+        break;
       }
     }
   };

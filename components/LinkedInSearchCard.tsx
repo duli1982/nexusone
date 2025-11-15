@@ -27,8 +27,8 @@ const LinkedInSearchCard: React.FC<LinkedInSearchCardProps> = ({ searchQuery, ex
       <h3 className="text-base font-bold text-gray-100">LinkedIn Search Assistant</h3>
       <p className="text-xs text-gray-300 italic">{explanation}</p>
       
-      <div className="bg-gray-900/70 rounded-md p-3">
-        <code className="text-xs text-cyan-300 break-words">{searchQuery}</code>
+      <div className="bg-gray-900/70 rounded-md p-3 overflow-x-auto">
+        <code className="text-xs text-cyan-300 break-words whitespace-pre-wrap">{searchQuery}</code>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2">

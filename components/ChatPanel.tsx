@@ -104,8 +104,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
           />
         )}
 
-        <PipelinePanel role={activeRole} onUpdateRole={onUpdateRole} onSendMessage={onSendMessage} />
-
         <main ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg) => (
             <MessageBubble 
@@ -116,12 +114,14 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
             />
           ))}
           {isLoading && <LoadingBubble />}
-          {error && (
+              {error && (
             <div className="text-center text-red-400 text-sm p-4 bg-red-900/50 rounded-lg">
               {error}
             </div>
           )}
         </main>
+
+        <PipelinePanel role={activeRole} onUpdateRole={onUpdateRole} onSendMessage={onSendMessage} />
 
         <RemindersPanel
           role={activeRole}
